@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Giphy API Homework</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+
+	<div class="container">
+		<div class="row text-center">
+			<h1 id="whoa">Sports Gifs</h1>
+		</div>
+		<br>
+		<div class="row text-center">
+
+		<div id="gifDisplay"></div>
+		<!-- added buttons will get dumped here -->
+		<div id="gif-view"></div>
+		</div>
+		<br>
+		<div class="row text-center">
+			<form id="movie-form">
+				<label for="gif-input">Add a Sport</label>
+				<input type="text" id="gif-input"><br>
+				<br>
+				<!-- Button triggers new movie to be added -->
+				<input id="add-gif" type="submit" value="More Sports = More Gifs!">
+			</form>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+		<script type="text/javascript">
+
+		var topics = ["basketball", "hockey","football"];
+
+    function displayGif(){
+
+      	var gifButton = $(this).attr("data-name");
+      	console.log(gifButton)
+
+      	var queryURL = "http://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=" + gifButton + "&limit=10";
+
+      	$.ajax({
+      		url: queryURL,
+      		method: 'GET'
+      	}).done(function(response) {
+      		console.log(response);
+      		var results = response.data;
+
+      		for (j = 0; j < results.length; j++){
+      		// Creating a div to hold the gif
+      		var gifDiv = $("<div id='showMeGif'>");
+      		
+      		var rating = results[j].rating
+
+      		var p = $("<p>").text("Rating: " + rating);
+          	// Retrieving the URL for the image
+
+          	var gifImage = $("<img>");
+
+          	gifImage.attr("src", results[j].images.fixed_height_still.url);
+          	gifImage.attr("data-animate", results[j].images.fixed_height.url)
+          	gifImage.attr("data-still", results[j].images.fixed_height_still.url)
+          	gifImage.attr("data-state", "still");
+
+          	gifDiv.append(p);
+          	gifDiv.append(gifImage);
+
+     		$("#gifDisplay").append(gifDiv);
+      		}	
+      
+ 		});
+    };
+
+
+	function renderButtons() {
+
+        // Deleting the buttons prior to adding new buttons to avoid repeat buttons
+        	$("#gif-view").empty();
+
+        // Looping through the array of sports
+        	for (var i = 0; i < topics.length; i++) {
+
+	          var a = $("<button>");
+	          // Adding a class
+	          a.addClass("gif");
+	          // Adding a data-attribute with a value of the user input at index i
+	          a.attr("data-name", topics[i]);
+	          // Providing the button's text using the user input
+	          a.text(topics[i]);
+	          // Adding the button to the HTML
+	          $("#gif-view").append(a);
+      		}
+  	}
+
+      // This function handles events where the more sports = more gifs button is clicked
+    $("#add-gif").on("click", function(event) {
+        
+        event.preventDefault();
+
+        // This line will grab the text from the input box
+        var addGif = $("#gif-input").val().trim();
+        
+        // The sport from the textbox is then added to the array
+        if (addGif === ""){
+        	$("#whoa").text("You entered nothing, Jon Snow, try again");
+        	
+        }
+        else if (addGif === "baseball" || addGif === "cricket" || addGif === "soccer" || addGif === "polo" || addGif === "rugby" || addGif === "lacrosse" || addGif === "golf"){
+        	$("#whoa").text("Sports Gifs");
+        	topics.push(addGif);
+        }
+        else{
+        	$("#whoa").text("I meant a real sport... Try again.");
+        }
+
+        // calling renderButtons which handles the processing of the array
+        renderButtons();
+    });
+
+
+
+ $(document).on("click", ".gif", displayGif);
+
+ renderButtons();
+
+//this function will start/stop the gif when it is clicked
+ $("#gifDisplay").on("click", function(){
+    var state = $(this).attr("data-state");
+    console.log(state);
+
+    if (state === "still"){
+
+          $(this).attr("src", $(this).attr("data-animate"));
+          $(this).attr("data-state", "animate");
+
+        }
+        else if (state === "animate") {
+          $(this).attr("src", $(this).attr("data-still"));
+
+        }
+});
+      
+	</script>
+</body>
+</html>
